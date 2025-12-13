@@ -7,3 +7,4 @@ class Task:
         self.arrival_time = arrival_time
         self.finish_time = None
         self.service_time = None
+        self.sprint = None

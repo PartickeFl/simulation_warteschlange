@@ -31,9 +31,9 @@ class Strategy2:
     def run(self):
         self.schedule_initial_events()
 
-        print("+------+-----------+-----------+-----------+-----------+--------+")
-        print("| id   | t_i       | e_i       | w_i       | Σ Wartezeit        |")
-        print("+------+-----------+-----------+-----------+-----------+--------+")
+        print("+------+-----------+-----------+-----------+-----------+--------+-----------")
+        print("| id   | t_i       | e_i       | w_i       | Σ Wartezeit        | Sprint   |")
+        print("+------+-----------+-----------+-----------+-----------+--------+-----------")
         while not self.event_queue.empty():
             event = self.event_queue.pop()
             current_time = event.time
@@ -66,6 +66,8 @@ class Strategy2:
         discarded = self.buffer[self.capacity:]
 
         self.sprint_queue = list(selected)
+        for task in self.sprint_queue:
+            task.sprint = int(now / self.T)
         self.discarded_tasks.extend(discarded)
         self.buffer = []  # Buffer leeren
 
@@ -74,6 +76,7 @@ class Strategy2:
 
         # Nächsten Sprint planen
         self.event_queue.push(Event(now + self.T, Event.SPRINT))
+        print("+------+-----------+ Start sprint: " + str(int(now / self.T)) + "---------------------------------+")
 
     def start_service(self, task, now):
         self.server_busy = True
@@ -95,7 +98,8 @@ class Strategy2:
             f"| {task.arrival_time: 9.4f} "
             f"| {task.finish_time: 9.4f} "
             f"| {wait_time: 9.4f} "
-            f"| {self.total_wait_time: 18.4f} |"
+            f"| {self.total_wait_time: 18.4f} "
+            f"| {task.sprint: 2.0f} |"
         )
 
         self.sprint_queue.pop(0)
