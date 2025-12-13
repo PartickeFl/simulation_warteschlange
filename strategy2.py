@@ -7,13 +7,14 @@ from task import Task
 
 
 class Strategy2:
-    def __init__(self, arrival_rate, service_rate, simulation_time, sprint_length, sprint_capacity):
+    def __init__(self, arrival_rate: float, service_rate: float, simulation_time: int , sprint_length: int):
         self.alpha = arrival_rate
         self.beta = service_rate
         self.sim_time = simulation_time
+        self.total_wait_time = 0
 
         self.T = sprint_length
-        self.capacity = sprint_capacity
+        self.capacity = sprint_length
 
         self.buffer = []  # Tasks, die im Sprint gesammelt werden
         self.sprint_queue = []  # Tasks, die im Sprint tatsächlich bearbeitet werden
@@ -30,6 +31,9 @@ class Strategy2:
     def run(self):
         self.schedule_initial_events()
 
+        print("+------+-----------+-----------+-----------+-----------+--------+")
+        print("| id   | t_i       | e_i       | w_i       | Σ Wartezeit        |")
+        print("+------+-----------+-----------+-----------+-----------+--------+")
         while not self.event_queue.empty():
             event = self.event_queue.pop()
             current_time = event.time
@@ -56,7 +60,7 @@ class Strategy2:
         self.event_queue.push(Event(now + exp(self.alpha), Event.ARRIVAL))
 
     def handle_sprint(self, now):
-        # Sprintstart: zufällige Auswahl
+        # Sprintstart: zufällige Auswahl - Simulation einer Priorisierung
         random.shuffle(self.buffer)
         selected = self.buffer[:self.capacity]
         discarded = self.buffer[self.capacity:]
@@ -77,10 +81,22 @@ class Strategy2:
         service_time = exp(self.beta)
         self.event_queue.push(Event(now + service_time, Event.DEPARTURE, task))
 
-    def handle_departure(self, event, now):
+    def handle_departure(self, event: Event, now: float):
+        #  Handle departure
         task = event.data
         task.finish_time = now
         self.completed_tasks.append(task)
+
+        #  Print information
+        wait_time = task.finish_time-task.arrival_time
+        self.total_wait_time += wait_time
+        print(
+            f"| {task.id: 4d} "
+            f"| {task.arrival_time: 9.4f} "
+            f"| {task.finish_time: 9.4f} "
+            f"| {wait_time: 9.4f} "
+            f"| {self.total_wait_time: 18.4f} |"
+        )
 
         self.sprint_queue.pop(0)
         if len(self.sprint_queue) > 0:
@@ -91,5 +107,5 @@ class Strategy2:
     def average_wait_time(self):
         if not self.completed_tasks:
             return 0
-        waits = [t.start_time - t.arrival_time for t in self.completed_tasks]
+        waits = [t.finish_time - t.arrival_time for t in self.completed_tasks]
         return sum(waits) / len(waits)

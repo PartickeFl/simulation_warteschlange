@@ -118,7 +118,6 @@ class Strategy1:
         self.total_wait_time += current_wait
 
         # Tabellenzeile
-        start_str = "-"
         print(
             f"| {task.id: 4d} "
             f"| {a_i: 9.4f} "
@@ -134,7 +133,6 @@ class Strategy1:
 
     def start_service(self, task, now):
         self.server_busy = True
-        task.start_time = now
         completion_event = Event(
             now + task.service_time,
             Event.DEPARTURE,
