@@ -36,9 +36,9 @@ class Strategy2:
     def run(self):
         self.schedule_initial_events()
 
-        self.print("+------+-----------+-----------+-----------+-----------+--------+-----------")
-        self.print("| id   | t_i       | e_i       | w_i       | Σ Wartezeit        | Sprint   |")
-        self.print("+------+-----------+-----------+-----------+-----------+--------+-----------")
+        self.print("+------+-----------+-----------+-----------+-----------+-----------+--------------------+----------+")
+        self.print("| id   | a_i       | t_i       | b_i       | e_i       | w_i       | Σ Wartezeit        | Sprint   |")
+        self.print("+------+-----------+-----------+-----------+-----------+-----------+--------------------+----------+")
         while not self.event_queue.empty():
             event = self.event_queue.pop()
             current_time = event.time
@@ -56,13 +56,14 @@ class Strategy2:
         return {
             "completed": len(self.completed_tasks),
             "discarded": len(self.discarded_tasks),
-            "avg_wait": self.average_wait_time(),
+            "avg_wait": self.total_wait_time / len(self.completed_tasks)
         }
 
     # Event handlers
     def handle_arrival(self, now):
-        self.buffer.append(Task(arrival_time=now))
-        self.event_queue.push(Event(now + exp(self.alpha), Event.ARRIVAL))
+        exp_alpha = exp(self.alpha)
+        self.buffer.append(Task(arrival_time=now, exp_alpha=exp_alpha))
+        self.event_queue.push(Event(now + exp_alpha, Event.ARRIVAL))
 
     def handle_sprint(self, now):
         # Sprintstart: zufällige Auswahl - Simulation einer Priorisierung
@@ -87,6 +88,7 @@ class Strategy2:
         self.server_busy = True
         task.start_time = now
         service_time = exp(self.beta)
+        task.service_time = service_time
         self.event_queue.push(Event(now + service_time, Event.DEPARTURE, task))
 
     def handle_departure(self, event: Event, now: float):
@@ -96,11 +98,13 @@ class Strategy2:
         self.completed_tasks.append(task)
 
         #  Print information
-        wait_time = task.finish_time-task.arrival_time
+        wait_time = task.finish_time-task.arrival_time-task.service_time
         self.total_wait_time += wait_time
         self.print(
             f"| {task.id: 4d} "
+            f"| {task.exp_alpha: 9.4f} "
             f"| {task.arrival_time: 9.4f} "
+            f"| {task.service_time: 9.4f} "
             f"| {task.finish_time: 9.4f} "
             f"| {wait_time: 9.4f} "
             f"| {self.total_wait_time: 18.4f} "
@@ -112,9 +116,3 @@ class Strategy2:
             self.start_service(self.sprint_queue[0], now)
         else:
             self.server_busy = False
-
-    def average_wait_time(self):
-        if not self.completed_tasks:
-            return 0
-        waits = [t.finish_time - t.arrival_time for t in self.completed_tasks]
-        return sum(waits) / len(waits)
