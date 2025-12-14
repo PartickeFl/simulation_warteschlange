@@ -22,6 +22,7 @@ Ausgaben der Simulation:
 - Mittlere Schlangenlänge
 - Auslastungsgrad
 """
+import logging
 
 from event import Event
 from event_queue import EventQueue
@@ -49,19 +50,22 @@ class Strategy1:
         self.last_arrival_time = 0.0
         self.total_service_time = 0.0
         self.total_wait_time = 0.0
+        self.logger = logging.getLogger(__name__)
 
     def schedule_initial_events(self):
         first_arrival = exp(self.alpha)
         self.event_queue.push(Event(first_arrival, Event.ARRIVAL))
 
+    def print(self, text):
+        self.logger.info(text)
+
     def run(self):
         self.schedule_initial_events()
-        current_time = 0.0
 
         # Tabellenkopf
-        print("+------+-----------+-----------+-----------+-----------+---------+----------------------+--------------------+")
-        print("| id   | a_i       | t_i       | b_i       | e_i       | w_i     | Σ Bedienzeit         | Σ Wartezeit        |")
-        print("+------+-----------+-----------+-----------+-----------+---------+----------------------+--------------------+")
+        self.print("+------+-----------+-----------+-----------+-----------+---------+----------------------+--------------------+")
+        self.print("| id   | a_i       | t_i       | b_i       | e_i       | w_i     | Σ Bedienzeit         | Σ Wartezeit        |")
+        self.print("+------+-----------+-----------+-----------+-----------+---------+----------------------+--------------------+")
 
         last_task_e_i = 0
         while not self.event_queue.empty():
@@ -118,7 +122,7 @@ class Strategy1:
         self.total_wait_time += current_wait
 
         # Tabellenzeile
-        print(
+        self.print(
             f"| {task.id: 4d} "
             f"| {a_i: 9.4f} "
             f"| {task.arrival_time: 9.4f} "

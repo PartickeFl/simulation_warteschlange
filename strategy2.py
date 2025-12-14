@@ -1,4 +1,5 @@
 import random
+import logging
 
 from event import Event
 from event_queue import EventQueue
@@ -23,6 +24,10 @@ class Strategy2:
 
         self.completed_tasks = []
         self.discarded_tasks = []
+        self.logger = logging.getLogger(__name__)
+
+    def print(self, text):
+        self.logger.info(text)
 
     def schedule_initial_events(self):
         self.event_queue.push(Event(exp(self.alpha), Event.ARRIVAL))
@@ -31,9 +36,9 @@ class Strategy2:
     def run(self):
         self.schedule_initial_events()
 
-        print("+------+-----------+-----------+-----------+-----------+--------+-----------")
-        print("| id   | t_i       | e_i       | w_i       | Σ Wartezeit        | Sprint   |")
-        print("+------+-----------+-----------+-----------+-----------+--------+-----------")
+        self.print("+------+-----------+-----------+-----------+-----------+--------+-----------")
+        self.print("| id   | t_i       | e_i       | w_i       | Σ Wartezeit        | Sprint   |")
+        self.print("+------+-----------+-----------+-----------+-----------+--------+-----------")
         while not self.event_queue.empty():
             event = self.event_queue.pop()
             current_time = event.time
@@ -76,7 +81,7 @@ class Strategy2:
 
         # Nächsten Sprint planen
         self.event_queue.push(Event(now + self.T, Event.SPRINT))
-        print("+------+-----------+ Start sprint: " + str(int(now / self.T)) + "---------------------------------+")
+        self.print("+------+-----------+ Start sprint: " + str(int(now / self.T)) + "---------------------------------+")
 
     def start_service(self, task, now):
         self.server_busy = True
@@ -93,7 +98,7 @@ class Strategy2:
         #  Print information
         wait_time = task.finish_time-task.arrival_time
         self.total_wait_time += wait_time
-        print(
+        self.print(
             f"| {task.id: 4d} "
             f"| {task.arrival_time: 9.4f} "
             f"| {task.finish_time: 9.4f} "
