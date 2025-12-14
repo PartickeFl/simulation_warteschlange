@@ -1,12 +1,14 @@
 import logging
 
 
-def init_logging(level=logging.INFO):
+def init_logging(level=logging.DEBUG):
     logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+        level=level,
+        format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
+        filename="app.log",
+        filemode="w",
     )
 
 
-def switch_to_debug():
-    logging.getLogger().setLevel(logging.DEBUG)
+def switch_to_info():
+    logging.getLogger().setLevel(logging.INFO)

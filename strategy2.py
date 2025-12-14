@@ -8,7 +8,7 @@ from task import Task
 
 
 class Strategy2:
-    def __init__(self, arrival_rate: float, service_rate: float, simulation_time: int , sprint_length: int):
+    def __init__(self, arrival_rate: float, service_rate: float, simulation_time: int, sprint_length: int):
         self.alpha = arrival_rate
         self.beta = service_rate
         self.sim_time = simulation_time
@@ -27,7 +27,7 @@ class Strategy2:
         self.logger = logging.getLogger(__name__)
 
     def print(self, text):
-        self.logger.info(text)
+        self.logger.debug(text)
 
     def schedule_initial_events(self):
         self.event_queue.push(Event(exp(self.alpha), Event.ARRIVAL))

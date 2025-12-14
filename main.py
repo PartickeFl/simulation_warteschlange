@@ -1,14 +1,16 @@
+import logging
+
 from strategy1 import Strategy1
 from strategy2 import Strategy2
 from scenario_generator import ScenarioGenerator
 from stats import Stats
 from task import Task
-from internal_logging import init_logging, switch_to_debug
+from internal_logging import init_logging, switch_to_info
 
 
 def example_run_strategy_1():
     print("Strategy 1 (FIFO):")
-    s1 = Strategy1(arrival_rate=1.5, service_rate=1.0, simulation_time=30)
+    s1 = Strategy1(arrival_rate=1.5, service_rate=1.0, simulation_time=10)
     print(s1.run())
 
 
@@ -22,13 +24,15 @@ def example_run_strategy_2():
 def analyse_strategy_1():
     print("Analyses of strategy 1")
     Task._id_counter = 1
-    switch_to_debug()
+    switch_to_info()
     s1 = Strategy1(arrival_rate=1.5, service_rate=1.0, simulation_time=240)
     scenario_generator = ScenarioGenerator(s1)
-    scenario_generator.run(100)
+    scenario_generator.run(1000)
     for key, value_list in scenario_generator.aggregated.items():
         stats = Stats(value_list)
+        logger = logging.getLogger(__name__)
         lower_bound, upper_bound = stats.confidence_ninety_five()
+        logging.info(stats)
         print(key + ": " + "[" + str(lower_bound) + "; " + str(upper_bound) + "]")
 
 

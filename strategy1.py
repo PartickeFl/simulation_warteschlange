@@ -57,7 +57,7 @@ class Strategy1:
         self.event_queue.push(Event(first_arrival, Event.ARRIVAL))
 
     def print(self, text):
-        self.logger.info(text)
+        self.logger.debug(text)
 
     def run(self):
         self.schedule_initial_events()
