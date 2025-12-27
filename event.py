@@ -1,14 +1,26 @@
 from task import Task
+from typing import Optional, Any
 
 class Event:
-    ARRIVAL = "arrival"
-    DEPARTURE = "departure"
-    SPRINT = "sprint"
+    """
+    Repräsentiert ein Ereignis im Simulationsmodell.
+    Typen: Ankunft, Abgang, Sprint.
+    time: Zeitpunkt des Ereignisses (z.B. Simulationszeit)
+    type: Art des Ereignisses (z.B. 'arrival', 'departure', 'sprint')
+    data: Optionales Zusatzobjekt, z.B. ein Task
+    """
+    ARRIVAL: str = "arrival"
+    DEPARTURE: str = "departure"
+    SPRINT: str = "sprint"
 
-    def __init__(self, time: int, event_type: str, data: Task | None = None):
-        self.time = time
-        self.type = event_type
-        self.data = data
+    def __init__(self, time: float, event_type: str, data: Optional[Task] = None) -> None:
+        self.time: float = time  # Zeitpunkt des Ereignisses
+        self.type: str = event_type  # Typ des Ereignisses
+        self.data: Optional[Task] = data  # Zusatzdaten, z.B. Task-Objekt
 
-    def __lt__(self, other: Task):
+    def __lt__(self, other: Any) -> bool:
+        """
+        Vergleichsfunktion für die Sortierung von Events nach Zeit.
+        Ermöglicht z.B. die Nutzung in einer Prioritätswarteschlange.
+        """
         return self.time < other.time
